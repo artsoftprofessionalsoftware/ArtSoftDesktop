@@ -1,0 +1,33 @@
+﻿<Window x:Class="ArtSoftDesktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ArtSoftDesktop" Height="500" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/Resources/AS.png"
+        Loaded="Window_Loaded" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown">
+    <DockPanel LastChildFill="True">
+        <WrapPanel Name="spMain" DockPanel.Dock="Top" Orientation="Horizontal" Background="#EEEEEE">
+            <Label Content="Profile:"/>
+            <ComboBox Name="cbProfile" Width="200" SelectedValuePath="Id" DisplayMemberPath="Name"  Margin="2,2,2,2" SelectionChanged="cbProfile_SelectionChanged"/>
+            <CheckBox Name="cbEdit" Content="Edit" FlowDirection="RightToLeft" Checked="cbEdit_Checked" Margin="2,5,2,2" Unchecked="cbEdit_Unchecked"/>
+            <Button Name="miAddProfile" Content="+ profile" ToolTip="Add new profile" Margin="2,2,2,2" Click="miAddProfile_Click"/>
+            <Button Name="miAddControl" Content="+ control" ToolTip="Add new control" Margin="2,2,2,2" Click="miAddControl_Click"/>
+            <Button Name="miEditControl" Content="edit" ToolTip="Edit control" Margin="2,2,2,2" Click="miEditControl_Click"/>
+            <Button Name="miDeleteProfile" Content="x profile" ToolTip="Delete profile"  Margin="2,2,2,2" Click="miDeleteProfile_Click"/>
+            <Button Name="miDeleteControl" Content="x control" ToolTip="Delete control"  Margin="2,2,2,2" Click="miDeleteControl_Click"/>
+            <CheckBox Name="cbFullScreen" Content="Full screen" FlowDirection="RightToLeft" Margin="2,5,2,2" Checked="cbFullScreen_Checked" Unchecked="cbFullScreen_Unchecked"/>
+            <CheckBox Name="cbMenuAutoHide" Content="Menu auto hide"  Margin="2,5,2,2" FlowDirection="RightToLeft"/>
+            <Button Name="miPaste" Content="Paste" Margin="2,2,2,2" Click="miPaste_Click"/>
+            <Button Name="miSave" Content="Save" Margin="2,2,2,2" Click="miSave_Click"/>
+            <Button Name="miQuit" Content="Quit" Margin="2,2,2,2" Click="miQuit_Click"/>
+        </WrapPanel>
+        <Canvas Name="cnvMain" Background="White" MouseMove="cnvMain_MouseMove" AllowDrop="True" Drop="cnvMain_Drop">
+            <Canvas.ContextMenu>
+                <ContextMenu Name="cnvMainMenu">
+                    <MenuItem Header="Add control" Name="cmiAddControl" Click="cmiAddControl_Click"/>
+                    <MenuItem Header="Paste" Name="cmiLink" Click="cmiLink_Click"/>
+                </ContextMenu>
+            </Canvas.ContextMenu>
+        </Canvas>
+    </DockPanel>
+</Window>
