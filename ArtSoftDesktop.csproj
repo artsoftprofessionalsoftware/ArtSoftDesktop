@@ -125,12 +125,14 @@
     <Resource Include="Resources\AS.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Profiles.xml">
+    <None Include="Profiles.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Desktop_000001.xml" />
+    <None Include="Desktop_000001.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
