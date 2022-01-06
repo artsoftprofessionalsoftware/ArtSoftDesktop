@@ -25,6 +25,7 @@
             <Canvas.ContextMenu>
                 <ContextMenu Name="cnvMainMenu">
                     <MenuItem Header="Add control" Name="cmiAddControl" Click="cmiAddControl_Click"/>
+                    <MenuItem Header="Edit profile" Name="cmiEditProfile" Click="cmiEditProfile_Click"/>
                     <MenuItem Header="Paste" Name="cmiLink" Click="cmiLink_Click"/>
                 </ContextMenu>
             </Canvas.ContextMenu>

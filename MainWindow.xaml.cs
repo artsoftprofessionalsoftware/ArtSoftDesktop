@@ -71,7 +71,20 @@ namespace ArtSoftDesktop
 
                 RefreshProfilesCombo();
 
-                cbProfile.SelectedIndex = 0;
+                if (Program.initProfile == null)
+                {
+                    cbProfile.SelectedIndex = 0;
+                }
+                else
+                {
+                    foreach (ProfileItem item in cbProfile.Items)
+                    {
+                        if (item.Name == Program.initProfile)
+                        {
+                            cbProfile.SelectedItem = item;
+                        }
+                    }
+                }
 
                 XmlElement pn = (XmlElement)prfXmlElem.ChildNodes[0];
                 int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
@@ -102,6 +115,11 @@ namespace ArtSoftDesktop
 
         private void RefreshProfilesCombo()
         {
+            RefreshProfilesCombo(0);
+        }
+
+        private void RefreshProfilesCombo(int index)
+        {
             cbProfile.Items.Clear();
 
             foreach (XmlElement pn in prfXmlElem.ChildNodes)
@@ -113,6 +131,8 @@ namespace ArtSoftDesktop
                 pi.Name = name;
                 cbProfile.Items.Add(pi);
             }
+
+            cbProfile.SelectedIndex = index;
         }
 
         private class ProfileItem
@@ -123,44 +143,90 @@ namespace ArtSoftDesktop
 
         private void miAddProfile_Click(object sender, RoutedEventArgs e)
         {
+            AddProfile();
+        }
+
+        private void AddProfile()
+        {
             try
             {
-                var uri = prfXmlDoc.DocumentElement.NamespaceURI;
+                DesktopEditor desktopEditor = new DesktopEditor();
+                desktopEditor.Color = "#FFEBF5FF";
+                desktopEditor.ShowDialog();
+                if (desktopEditor.Result)
+                {
+                    var uri = prfXmlDoc.DocumentElement.NamespaceURI;
 
-                XmlNode npn = prfXmlDoc.CreateNode(XmlNodeType.Element, "profile", uri);
+                    XmlNode npn = prfXmlDoc.CreateNode(XmlNodeType.Element, "profile", uri);
 
-                XmlNode idn = prfXmlDoc.CreateNode(XmlNodeType.Element, "id", uri);
-                int nid = GetNewId();
-                idn.InnerText = nid.ToString();
-                npn.AppendChild(idn);
+                    XmlNode idn = prfXmlDoc.CreateNode(XmlNodeType.Element, "id", uri);
+                    int nid = GetNewId();
+                    idn.InnerText = nid.ToString();
+                    npn.AppendChild(idn);
 
-                XmlNode nmn = prfXmlDoc.CreateNode(XmlNodeType.Element, "name", uri);
-                nmn.InnerText = "profile" + nid.ToString();
-                npn.AppendChild(nmn);
+                    XmlNode nmn = prfXmlDoc.CreateNode(XmlNodeType.Element, "name", uri);
+                    nmn.InnerText = desktopEditor.Name;
+                    npn.AppendChild(nmn);
 
-                var doc = prfXmlDoc.DocumentElement;
+                    XmlNode cln = prfXmlDoc.CreateNode(XmlNodeType.Element, "color", uri);
+                    cln.InnerText = desktopEditor.Color;
+                    npn.AppendChild(cln);
 
-                doc.AppendChild(npn);
+                    // var color = (Color)ColorConverter.ConvertFromString("Red");
 
-                prfXmlDoc.Save("Profiles.xml");
+                    var doc = prfXmlDoc.DocumentElement;
 
-                string dskFileName = "Desktop_" + nid.ToString().FillStart('0', 6) + ".xml";
-                XmlDocument dskXmlDoc = new XmlDocument();
-                string dskInitXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-                dskInitXml += "<desktop xmlns=\"http://www.desktop.com\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">";
-                dskInitXml += "</desktop>";
-                dskXmlDoc.LoadXml(dskInitXml);
-                dskXmlDoc.Save(dskFileName);
+                    doc.AppendChild(npn);
 
-                RefreshProfilesCombo();
+                    prfXmlDoc.Save("Profiles.xml");
 
-                cbProfile.SelectedIndex = cbProfile.Items.Count - 1;
+                    string dskFileName = "Desktop_" + nid.ToString().FillStart('0', 6) + ".xml";
+                    XmlDocument dskXmlDoc = new XmlDocument();
+                    string dskInitXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+                    dskInitXml += "<desktop xmlns=\"http://www.desktop.com\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">";
+                    dskInitXml += "</desktop>";
+                    dskXmlDoc.LoadXml(dskInitXml);
+                    dskXmlDoc.Save(dskFileName);
 
-                MessageBox.Show("Profile successfully added", "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Information);
+                    RefreshProfilesCombo();
+
+                    cbProfile.SelectedIndex = cbProfile.Items.Count - 1;
+
+                    MessageBox.Show("Profile successfully added", "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+        }
+
+        private void cmiEditProfile_Click(object sender, RoutedEventArgs e)
+        {
+            EditProfile();
+        }
+
+        private void EditProfile()
+        {
+            DesktopEditor desktopEditor = new DesktopEditor();
+            ProfileItem selProfItem = (ProfileItem)cbProfile.SelectedItem;
+            desktopEditor.Name = selProfItem.Name;
+            desktopEditor.Color = cnvMain.Background.ToString();
+            desktopEditor.ShowDialog();
+            if (desktopEditor.Result)
+            {
+                int id = int.Parse(cbProfile.SelectedValue.ToString());
+                XmlNode prf = prfXmlElem.SelectSingleNode("descendant::ps:profile[ps:id=" + id.ToString() + "]", prfXmlNmSpce);
+
+                XmlNode nxn = prf.SelectSingleNode("descendant::ps:name", prfXmlNmSpce);
+                nxn.InnerText = desktopEditor.Name;
+
+                XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
+                cxn.InnerText = desktopEditor.Color;
+
+                prfXmlDoc.Save("Profiles.xml");
+
+                RefreshProfilesCombo(cbProfile.SelectedIndex);
             }
         }
 
@@ -255,9 +321,14 @@ namespace ArtSoftDesktop
 
         private void miDeleteProfile_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Do you really want to delete profile", "ArtSoftDesktop", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            DeleteProfile();
+        }
+
+        private void DeleteProfile()
+        {
+            if (cbProfile.SelectedValue != null && cbProfile.SelectedIndex > 0)
             {
-                if (cbProfile.SelectedValue != null && cbProfile.SelectedIndex > 0)
+                if (MessageBox.Show("Do you really want to delete profile", "ArtSoftDesktop", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     int id = int.Parse(cbProfile.SelectedValue.ToString());
                     var prf = prfXmlElem.SelectSingleNode("descendant::ps:profile[ps:id=" + id.ToString() + "]", prfXmlNmSpce);
@@ -271,13 +342,12 @@ namespace ArtSoftDesktop
 
                     prfXmlDoc.Save("Profiles.xml");
 
-                    RefreshProfilesCombo();
-
                     if (cbProfile.Items.Count > 0)
                     {
-                        cbProfile.SelectedIndex = 0;
                         currentProfile = (ProfileItem)cbProfile.SelectedItem;
                     }
+
+                    RefreshProfilesCombo();
                 }
             }
         }
@@ -331,6 +401,8 @@ namespace ArtSoftDesktop
 
         private void cbProfile_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (cbProfile.SelectedItem == null) return;
+
             if (dirty)
             {
                 MessageBoxResult mbr = MessageBox.Show("Profile is changed. Do you want to save it?", "ArtSoftDesktop", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
@@ -348,7 +420,6 @@ namespace ArtSoftDesktop
             }
 
             currentProfile = (ProfileItem)cbProfile.SelectedItem;
-            int id = currentProfile.Id;
 
             LoadDesktop();
 
@@ -361,7 +432,15 @@ namespace ArtSoftDesktop
             {
                 int id = currentProfile.Id;
 
-                var brush = new SolidColorBrush(Color.FromArgb(255, 235, 245, 255));
+                XmlNode prf = prfXmlElem.SelectSingleNode("descendant::ps:profile[ps:id=" + id.ToString() + "]", prfXmlNmSpce);
+
+                XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
+                string profBackStr = cxn.InnerText;
+
+                //var brush = new SolidColorBrush(Color.FromArgb(255, 235, 245, 255));
+                var profBackClr = (Color)ColorConverter.ConvertFromString(profBackStr);
+                var brush = new SolidColorBrush(profBackClr);
+
                 cnvMain.Background = brush;
 
                 cnvMain.Children.Clear();
@@ -704,7 +783,7 @@ namespace ArtSoftDesktop
 
             if (e.Key == Key.E && System.Windows.Input.Keyboard.Modifiers == ModifierKeys.Control)
             {
-                if(currentControl != null)
+                if (currentControl != null)
                 {
                     EditControl(currentControl);
                 }
@@ -727,7 +806,7 @@ namespace ArtSoftDesktop
             {
                 if (currentControl != null)
                 {
-                    if(currentControl.GetType() == typeof(ShortCutControl))
+                    if (currentControl.GetType() == typeof(ShortCutControl))
                     {
                         ShortCutControl shortCutControl = (ShortCutControl)currentControl;
                         shortCutControl.Top -= 1;
