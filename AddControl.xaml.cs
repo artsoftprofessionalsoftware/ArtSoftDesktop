@@ -33,8 +33,8 @@ namespace ArtSoftDesktop
             addControlItems.Add(addControlItem);
 
             addControlItem = new AddControlItem();
-            addControlItem.Name = "TestControl";
-            addControlItem.Type = "ArtSoftDesktop.TestControl";
+            addControlItem.Name = "FrameControl";
+            addControlItem.Type = "ArtSoftDesktop.FrameControl";
             addControlItems.Add(addControlItem);
 
             dgAddControl.ItemsSource = addControlItems;

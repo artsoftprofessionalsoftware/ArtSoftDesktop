@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.IO;
 
 namespace ArtSoftDesktop
 {
@@ -122,6 +123,7 @@ namespace ArtSoftDesktop
                 Process process = new Process();
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = File;
+                psi.WorkingDirectory = Path.GetDirectoryName(File);
                 Process prc = Process.Start(psi);
             }
         }

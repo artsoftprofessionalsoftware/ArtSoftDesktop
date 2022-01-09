@@ -12,7 +12,7 @@ using System.Windows.Media;
 
 namespace ArtSoftDesktop
 {
-    public class TestControl: Control
+    public class FrameControl: Control
     {
         public double Top
         {

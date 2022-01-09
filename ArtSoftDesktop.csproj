@@ -68,8 +68,8 @@
     <Compile Include="ShortCutControlEditor.xaml.cs">
       <DependentUpon>ShortCutControlEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestControlEditor.xaml.cs">
-      <DependentUpon>TestControlEditor.xaml</DependentUpon>
+    <Compile Include="FrameControlEditor.xaml.cs">
+      <DependentUpon>FrameControlEditor.xaml</DependentUpon>
     </Compile>
     <Page Include="AddControl.xaml">
       <SubType>Designer</SubType>
@@ -88,7 +88,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library.cs" />
-    <Compile Include="TestControl.cs" />
+    <Compile Include="FrameControl.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -97,7 +97,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TestControlEditor.xaml">
+    <Page Include="FrameControlEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

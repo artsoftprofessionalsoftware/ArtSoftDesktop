@@ -21,11 +21,11 @@ namespace ArtSoftDesktop
             InitializeComponent();
         }
 
-        TestControl _control;
+        FrameControl _control;
 
         public bool Result = false;
 
-        public void Init(TestControl control)
+        public void Init(FrameControl control)
         {
             tbTop.Text = control.Top.ToString();
             tbLeft.Text = control.Left.ToString();

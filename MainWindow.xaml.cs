@@ -24,6 +24,9 @@ namespace ArtSoftDesktop
 {
     public partial class MainWindow : Window
     {
+        public static ProfileItem currentProfile;
+        public static FrameworkElement currentControl;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -36,14 +39,13 @@ namespace ArtSoftDesktop
         XmlElement prfXmlElem;
 
         bool dirty = false;
-
-        ProfileItem currentProfile;
-        FrameworkElement currentControl;
+        bool loaded = false;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadProfiles();
             cnvMain.Focus();
+            loaded = true;
         }
 
         void LoadProfiles()
@@ -86,12 +88,21 @@ namespace ArtSoftDesktop
                     }
                 }
 
-                XmlElement pn = (XmlElement)prfXmlElem.ChildNodes[0];
+                XmlElement pn = (XmlElement)prfXmlElem.ChildNodes[cbProfile.SelectedIndex];
                 int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
                 string name = pn.SelectSingleNode("descendant::ps:name", prfXmlNmSpce).InnerText;
+
                 ProfileItem pi = new ProfileItem();
                 pi.Id = id;
                 pi.Name = name;
+
+                XmlNode acxn = pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce);
+                if (acxn != null)
+                {
+                    bool autoClose = bool.Parse(acxn.InnerText);
+                    pi.AutoClose = autoClose;
+                }
+
                 currentProfile = pi;
             }
             catch (Exception ex)
@@ -124,21 +135,72 @@ namespace ArtSoftDesktop
 
             foreach (XmlElement pn in prfXmlElem.ChildNodes)
             {
-                int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
-                string name = pn.SelectSingleNode("descendant::ps:name", prfXmlNmSpce).InnerText;
                 ProfileItem pi = new ProfileItem();
+
+                int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
                 pi.Id = id;
+
+                string name = pn.SelectSingleNode("descendant::ps:name", prfXmlNmSpce).InnerText;
                 pi.Name = name;
+
+                XmlNode lxn = pn.SelectSingleNode("descendant::ps:left", prfXmlNmSpce);
+                if (lxn != null)
+                {
+                    double left = double.Parse(lxn.InnerText);
+                    pi.Left = left;
+                }
+
+                XmlNode txn = pn.SelectSingleNode("descendant::ps:top", prfXmlNmSpce);
+                if (txn != null)
+                {
+                    double top = double.Parse(txn.InnerText);
+                    pi.Top = top;
+                }
+
+                XmlNode wxn = pn.SelectSingleNode("descendant::ps:width", prfXmlNmSpce);
+                if (wxn != null)
+                {
+                    double width = double.Parse(wxn.InnerText);
+                    pi.Width = width;
+                }
+
+                XmlNode hxn = pn.SelectSingleNode("descendant::ps:height", prfXmlNmSpce);
+                if (hxn != null)
+                {
+                    double height = double.Parse(hxn.InnerText);
+                    pi.Height = height;
+                }
+
+                XmlNode ahxn = pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce);
+                if (ahxn != null)
+                {
+                    bool menuVisible = bool.Parse(pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce).InnerText);
+                    pi.MenuVisible = menuVisible;
+                }
+
+                XmlNode acxn = pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce);
+                if (acxn != null)
+                {
+                    bool autoClose = bool.Parse(pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce).InnerText);
+                    pi.AutoClose = autoClose;
+                }
+
                 cbProfile.Items.Add(pi);
             }
 
             cbProfile.SelectedIndex = index;
         }
 
-        private class ProfileItem
+        public class ProfileItem
         {
             public int Id { set; get; }
             public string Name { set; get; }
+            public double? Left { set; get; }
+            public double? Top { set; get; }
+            public double? Width { set; get; }
+            public double? Height { set; get; }
+            public bool MenuVisible { set; get; }
+            public bool AutoClose { set; get; }
         }
 
         private void miAddProfile_Click(object sender, RoutedEventArgs e)
@@ -146,12 +208,24 @@ namespace ArtSoftDesktop
             AddProfile();
         }
 
+        const double _defaultWindowLeft = 190;
+        const double _defaultWindowTop = 90;
+        const double _defaultWindowWidth = 900;
+        const double _defaultWindowHeight = 500;
+        const string _defaultWindowColor = "#FFEBF5FF";
+
         private void AddProfile()
         {
             try
             {
                 DesktopEditor desktopEditor = new DesktopEditor();
-                desktopEditor.Color = "#FFEBF5FF";
+                desktopEditor.Color = _defaultWindowColor;
+                desktopEditor.Left = _defaultWindowLeft;
+                desktopEditor.Top = _defaultWindowTop;
+                desktopEditor.Width = _defaultWindowWidth;
+                desktopEditor.Height = _defaultWindowHeight;
+                desktopEditor.MenuVisible = true;
+                desktopEditor.AutoClose = false;
                 desktopEditor.ShowDialog();
                 if (desktopEditor.Result)
                 {
@@ -173,6 +247,42 @@ namespace ArtSoftDesktop
                     npn.AppendChild(cln);
 
                     // var color = (Color)ColorConverter.ConvertFromString("Red");
+
+                    if (desktopEditor.Left != null)
+                    {
+                        XmlNode ln = prfXmlDoc.CreateNode(XmlNodeType.Element, "left", uri);
+                        ln.InnerText = desktopEditor.Left.ToString();
+                        npn.AppendChild(ln);
+                    }
+
+                    if (desktopEditor.Top != null)
+                    {
+                        XmlNode tn = prfXmlDoc.CreateNode(XmlNodeType.Element, "top", uri);
+                        tn.InnerText = desktopEditor.Top.ToString();
+                        npn.AppendChild(tn);
+                    }
+
+                    if (desktopEditor.Width != null)
+                    {
+                        XmlNode wn = prfXmlDoc.CreateNode(XmlNodeType.Element, "width", uri);
+                        wn.InnerText = desktopEditor.Width.ToString();
+                        npn.AppendChild(wn);
+                    }
+
+                    if (desktopEditor.Height != null)
+                    {
+                        XmlNode hn = prfXmlDoc.CreateNode(XmlNodeType.Element, "height", uri);
+                        hn.InnerText = desktopEditor.Height.ToString();
+                        npn.AppendChild(hn);
+                    }
+
+                    XmlNode mvn = prfXmlDoc.CreateNode(XmlNodeType.Element, "menuvisible", uri);
+                    mvn.InnerText = desktopEditor.MenuVisible.ToString().ToLower();
+                    npn.AppendChild(mvn);
+
+                    XmlNode acn = prfXmlDoc.CreateNode(XmlNodeType.Element, "autoclose", uri);
+                    acn.InnerText = desktopEditor.AutoClose.ToString().ToLower();
+                    npn.AppendChild(acn);
 
                     var doc = prfXmlDoc.DocumentElement;
 
@@ -212,9 +322,17 @@ namespace ArtSoftDesktop
             ProfileItem selProfItem = (ProfileItem)cbProfile.SelectedItem;
             desktopEditor.Name = selProfItem.Name;
             desktopEditor.Color = cnvMain.Background.ToString();
+            if (currentProfile.Left != null) desktopEditor.Left = (double)currentProfile.Left;
+            if (currentProfile.Top != null) desktopEditor.Top = (double)currentProfile.Top;
+            if (currentProfile.Width != null) desktopEditor.Width = (double)currentProfile.Width;
+            if (currentProfile.Height != null) desktopEditor.Height = (double)currentProfile.Height;
+            desktopEditor.MenuVisible = selProfItem.MenuVisible;
+            desktopEditor.AutoClose = selProfItem.AutoClose;
             desktopEditor.ShowDialog();
             if (desktopEditor.Result)
             {
+                var uri = prfXmlDoc.DocumentElement.NamespaceURI;
+
                 int id = int.Parse(cbProfile.SelectedValue.ToString());
                 XmlNode prf = prfXmlElem.SelectSingleNode("descendant::ps:profile[ps:id=" + id.ToString() + "]", prfXmlNmSpce);
 
@@ -224,9 +342,83 @@ namespace ArtSoftDesktop
                 XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
                 cxn.InnerText = desktopEditor.Color;
 
+                if (desktopEditor.Left != null)
+                {
+                    XmlNode lxn = prf.SelectSingleNode("descendant::ps:left", prfXmlNmSpce);
+                    if (lxn == null)
+                    {
+                        lxn = prfXmlDoc.CreateNode(XmlNodeType.Element, "left", uri);
+                        prf.AppendChild(lxn);
+                    }
+                    lxn.InnerText = desktopEditor.Left.ToString();
+                }
+
+                if (desktopEditor.Top != null)
+                {
+                    XmlNode txn = prf.SelectSingleNode("descendant::ps:top", prfXmlNmSpce);
+                    if (txn == null)
+                    {
+                        txn = prfXmlDoc.CreateNode(XmlNodeType.Element, "top", uri);
+                        prf.AppendChild(txn);
+                    }
+                    txn.InnerText = desktopEditor.Top.ToString();
+                }
+
+                if (desktopEditor.Width != null)
+                {
+                    XmlNode wxn = prf.SelectSingleNode("descendant::ps:width", prfXmlNmSpce);
+                    if (wxn == null)
+                    {
+                        wxn = prfXmlDoc.CreateNode(XmlNodeType.Element, "width", uri);
+                        prf.AppendChild(wxn);
+                    }
+                    wxn.InnerText = desktopEditor.Width.ToString();
+                }
+
+                if (desktopEditor.Height != null)
+                {
+                    XmlNode hxn = prf.SelectSingleNode("descendant::ps:height", prfXmlNmSpce);
+                    if (hxn == null)
+                    {
+                        hxn = prfXmlDoc.CreateNode(XmlNodeType.Element, "height", uri);
+                        prf.AppendChild(hxn);
+                    }
+                    hxn.InnerText = desktopEditor.Height.ToString();
+                }
+
+                XmlNode ahxn = prf.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce);
+                if (ahxn == null)
+                {
+                    ahxn = prfXmlDoc.CreateNode(XmlNodeType.Element, "menuvisible", uri);
+                    prf.AppendChild(ahxn);
+                }
+                ahxn.InnerText = desktopEditor.MenuVisible.ToString();
+
+                XmlNode acxn = prf.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce);
+                if (acxn == null)
+                {
+                    acxn = prfXmlDoc.CreateNode(XmlNodeType.Element, "autoclose", uri);
+                    prf.AppendChild(acxn);
+                }
+                acxn.InnerText = desktopEditor.AutoClose.ToString();
+
                 prfXmlDoc.Save("Profiles.xml");
 
                 RefreshProfilesCombo(cbProfile.SelectedIndex);
+            }
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (loaded)
+            {
+            }
+        }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
             }
         }
 
@@ -264,9 +456,9 @@ namespace ArtSoftDesktop
                 }
             }
 
-            if (addControl.Control == typeof(TestControl))
+            if (addControl.Control == typeof(FrameControl))
             {
-                TestControl control = new TestControl();
+                FrameControl control = new FrameControl();
                 control.Left = 20;
                 control.Top = 20;
                 control.Width = 100;
@@ -294,10 +486,10 @@ namespace ArtSoftDesktop
 
         private void EditControl(FrameworkElement control)
         {
-            if (control.GetType() == typeof(TestControl))
+            if (control.GetType() == typeof(FrameControl))
             {
                 TestControlEditor editor = new TestControlEditor();
-                TestControl testControl = (TestControl)control;
+                FrameControl testControl = (FrameControl)control;
                 editor.Init(testControl);
                 editor.ShowDialog();
                 if (editor.Result)
@@ -432,6 +624,26 @@ namespace ArtSoftDesktop
             {
                 int id = currentProfile.Id;
 
+                spMain.Visibility = Visibility.Visible;
+                if (!currentProfile.MenuVisible)
+                    spMain.Visibility = Visibility.Collapsed;
+
+                this.Left = _defaultWindowLeft;
+                if (currentProfile.Left != null)
+                    this.Left = (double)currentProfile.Left;
+
+                this.Top = _defaultWindowTop;
+                if (currentProfile.Top != null)
+                    this.Top = (double)currentProfile.Top;
+
+                this.Width = _defaultWindowWidth;
+                if (currentProfile.Width != null)
+                    this.Width = (double)currentProfile.Width;
+
+                this.Height = _defaultWindowHeight;
+                if (currentProfile.Height != null)
+                    this.Height = (double)currentProfile.Height;
+
                 XmlNode prf = prfXmlElem.SelectSingleNode("descendant::ps:profile[ps:id=" + id.ToString() + "]", prfXmlNmSpce);
 
                 XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
@@ -465,12 +677,12 @@ namespace ArtSoftDesktop
                     //Canvas.SetTop(control, top);
                     //Canvas.SetLeft(control, left);
 
-                    if (control.GetType() == typeof(TestControl))
+                    if (control.GetType() == typeof(FrameControl))
                     {
                         double width = double.Parse(ctlNode.SelectSingleNode("descendant::ps:width", prfXmlNmSpce).InnerText);
                         double height = double.Parse(ctlNode.SelectSingleNode("descendant::ps:height", prfXmlNmSpce).InnerText);
                         string color = ctlNode.SelectSingleNode("descendant::ps:color", prfXmlNmSpce).InnerText;
-                        TestControl testControl = (TestControl)control;
+                        FrameControl testControl = (FrameControl)control;
                         testControl.Top = top;
                         testControl.Left = left;
                         testControl.Width = width;
@@ -584,9 +796,9 @@ namespace ArtSoftDesktop
                     lpxn.InnerText = ctlx.ToString();
                     cxn.AppendChild(lpxn);
 
-                    if (control.GetType() == typeof(TestControl))
+                    if (control.GetType() == typeof(FrameControl))
                     {
-                        TestControl testControl = (TestControl)control;
+                        FrameControl testControl = (FrameControl)control;
 
                         XmlNode wpxn = dskXmlDoc.CreateNode(XmlNodeType.Element, "width", uri);
                         wpxn.InnerText = testControl.Width.ToString();
@@ -649,12 +861,12 @@ namespace ArtSoftDesktop
         {
             Point newMousePos = Mouse.GetPosition(cnvMain);
 
-            if (newMousePos.Y <= 10 && (cbMenuAutoHide.IsChecked ?? false))
+            if (newMousePos.Y <= 10 && (cbMenuAutoHide.IsChecked ?? false) && currentProfile.MenuVisible)
             {
                 spMain.Visibility = Visibility.Visible;
             }
 
-            if (newMousePos.Y > 10 && (cbMenuAutoHide.IsChecked ?? false))
+            if (newMousePos.Y > 10 && (cbMenuAutoHide.IsChecked ?? false) && currentProfile.MenuVisible)
             {
                 spMain.Visibility = Visibility.Collapsed;
             }
@@ -737,6 +949,11 @@ namespace ArtSoftDesktop
                 curMouseMode = MouseMode.ResizeNS;
             }
 
+            if (e.ClickCount == 2 && currentProfile.AutoClose)
+            {
+                this.Close();
+            }
+
             currentControl = control;
         }
 
@@ -798,6 +1015,7 @@ namespace ArtSoftDesktop
                         ShortCutControl shortCutControl = (ShortCutControl)currentControl;
                         shortCutControl.Left -= 1;
                         dirty = true;
+                        e.Handled = true;
                     }
                 }
             }
@@ -811,6 +1029,7 @@ namespace ArtSoftDesktop
                         ShortCutControl shortCutControl = (ShortCutControl)currentControl;
                         shortCutControl.Top -= 1;
                         dirty = true;
+                        e.Handled = true;
                     }
                 }
             }
@@ -824,6 +1043,7 @@ namespace ArtSoftDesktop
                         ShortCutControl shortCutControl = (ShortCutControl)currentControl;
                         shortCutControl.Left += 1;
                         dirty = true;
+                        e.Handled = true;
                     }
                 }
             }
@@ -837,6 +1057,7 @@ namespace ArtSoftDesktop
                         ShortCutControl shortCutControl = (ShortCutControl)currentControl;
                         shortCutControl.Top += 1;
                         dirty = true;
+                        e.Handled = true;
                     }
                 }
             }
@@ -934,11 +1155,13 @@ namespace ArtSoftDesktop
 
         private ImageSource GetFileBitMap(string file)
         {
+            ImageSource imageSource = null;
+
             System.Drawing.Icon icon = (System.Drawing.Icon)null;
 
             icon = System.Drawing.Icon.ExtractAssociatedIcon(file);
 
-            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+            imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
                 icon.Handle,
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());

@@ -4,7 +4,8 @@
         Title="ArtSoftDesktop" Height="500" Width="900"
         WindowStartupLocation="CenterScreen"
         Icon="pack://application:,,,/Resources/AS.png"
-        Loaded="Window_Loaded" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown">
+        Loaded="Window_Loaded" Closing="Window_Closing" LocationChanged="Window_LocationChanged" SizeChanged="Window_SizeChanged"
+        PreviewKeyDown="Window_PreviewKeyDown">
     <DockPanel LastChildFill="True">
         <WrapPanel Name="spMain" DockPanel.Dock="Top" Orientation="Horizontal" Background="#EEEEEE">
             <Label Content="Profile:"/>
