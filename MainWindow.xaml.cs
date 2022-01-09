@@ -449,7 +449,17 @@ namespace ArtSoftDesktop
                 editor.ShowDialog();
                 if (editor.Result)
                 {
-                    control.Source = GetFileBitMap(control.File);
+                    FileAttributes fileAttrs = File.GetAttributes(control.File);
+
+                    if (fileAttrs.HasFlag(FileAttributes.Directory))
+                    {
+                        control.Source = GetIconFromResource("folder.jpg");
+                    }
+                    else
+                    {
+                        control.Source = GetFileBitMap(control.File);
+                    }
+
                     cnvMain.Children.Add(control);
                     ControlInit(control);
                     dirty = true;
@@ -700,7 +710,18 @@ namespace ArtSoftDesktop
                         shortCutControl.Left = left;
                         shortCutControl.File = file;
                         shortCutControl.Title = title;
-                        shortCutControl.Source = GetFileBitMap(file);
+
+                        FileAttributes fileAttrs = File.GetAttributes(file);
+
+                        if (fileAttrs.HasFlag(FileAttributes.Directory))
+                        {
+                            shortCutControl.Source = GetIconFromResource("folder.jpg");
+                        }
+                        else
+                        {
+                            shortCutControl.Source = GetFileBitMap(file);
+                        }
+
                         cnvMain.Children.Add(control);
                     }
 
@@ -713,6 +734,17 @@ namespace ArtSoftDesktop
             {
                 MessageBox.Show(ex.Message, "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
+        }
+
+        private BitmapImage GetIconFromResource(string name)
+        {
+            Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Resources/" + name)).Stream;
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = iconStream;
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.EndInit();
+            return bitmapImage;
         }
 
         private void ControlInit(FrameworkElement control)
