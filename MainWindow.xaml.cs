@@ -657,13 +657,17 @@ namespace ArtSoftDesktop
                 XmlNode prf = prfXmlElem.SelectSingleNode("descendant::ps:profile[ps:id=" + id.ToString() + "]", prfXmlNmSpce);
 
                 XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
-                string profBackStr = cxn.InnerText;
 
-                //var brush = new SolidColorBrush(Color.FromArgb(255, 235, 245, 255));
-                var profBackClr = (Color)ColorConverter.ConvertFromString(profBackStr);
-                var brush = new SolidColorBrush(profBackClr);
+                if (cxn != null)
+                {
+                    string profBackStr = cxn.InnerText;
 
-                cnvMain.Background = brush;
+                    //var brush = new SolidColorBrush(Color.FromArgb(255, 235, 245, 255));
+                    var profBackClr = (Color)ColorConverter.ConvertFromString(profBackStr);
+                    var brush = new SolidColorBrush(profBackClr);
+
+                    cnvMain.Background = brush;
+                }
 
                 cnvMain.Children.Clear();
 
