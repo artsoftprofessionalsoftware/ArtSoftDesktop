@@ -1124,8 +1124,26 @@ namespace ArtSoftDesktop
 
         private void Paste()
         {
-            StringCollection fileDropList = Clipboard.GetFileDropList();
-            if (fileDropList.Count > 0)
+            //StringCollection fileDropList = Clipboard.GetFileDropList();
+            //if (fileDropList.Count > 0)
+            //{
+            //    string file = fileDropList[0];
+            //    Point position = new Point(10, 10);
+            //    AddShortcut(file, position);
+            //}
+
+            IDataObject data = Clipboard.GetDataObject();
+
+            if (!data.GetDataPresent(DataFormats.FileDrop))
+                return;
+
+            string[] fileDropList = (string[])data.GetData(DataFormats.FileDrop);
+            MemoryStream stream = (MemoryStream)data.GetData("Preferred DropEffect", true);
+            int flag = stream.ReadByte();
+            if (flag != 2 && flag != 5)
+                return;
+
+            if (fileDropList.Length > 0)
             {
                 string file = fileDropList[0];
                 Point position = new Point(10, 10);
@@ -1157,7 +1175,16 @@ namespace ArtSoftDesktop
                 string name = System.IO.Path.GetFileName(file);
                 control.Title = name;
 
-                control.Source = GetFileBitMap(file);
+                FileAttributes fileAttrs = File.GetAttributes(control.File);
+
+                if (fileAttrs.HasFlag(FileAttributes.Directory))
+                {
+                    control.Source = GetIconFromResource("folder.jpg");
+                }
+                else
+                {
+                    control.Source = GetFileBitMap(control.File);
+                }
 
                 control.MouseEnter += Control_OnMouseEnter;
                 control.MouseDown += Control_OnMouseDown;
