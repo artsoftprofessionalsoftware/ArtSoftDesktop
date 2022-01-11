@@ -171,6 +171,7 @@ namespace ArtSoftDesktop
                     pi.Height = height;
                 }
 
+                pi.MenuVisible = true;
                 XmlNode ahxn = pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce);
                 if (ahxn != null)
                 {
@@ -340,6 +341,11 @@ namespace ArtSoftDesktop
                 nxn.InnerText = desktopEditor.Name;
 
                 XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
+                if(cxn == null)
+                {
+                    cxn = prfXmlDoc.CreateNode(XmlNodeType.Element, "color", uri);
+                    prf.AppendChild(cxn);
+                }
                 cxn.InnerText = desktopEditor.Color;
 
                 if (desktopEditor.Left != null)
@@ -658,13 +664,17 @@ namespace ArtSoftDesktop
 
                 XmlNode cxn = prf.SelectSingleNode("descendant::ps:color", prfXmlNmSpce);
 
+                var profBackClr = (Color)ColorConverter.ConvertFromString(_defaultWindowColor);
+                var brush = new SolidColorBrush(profBackClr);
+                cnvMain.Background = brush;
+                
                 if (cxn != null)
                 {
                     string profBackStr = cxn.InnerText;
 
                     //var brush = new SolidColorBrush(Color.FromArgb(255, 235, 245, 255));
-                    var profBackClr = (Color)ColorConverter.ConvertFromString(profBackStr);
-                    var brush = new SolidColorBrush(profBackClr);
+                    profBackClr = (Color)ColorConverter.ConvertFromString(profBackStr);
+                    brush = new SolidColorBrush(profBackClr);
 
                     cnvMain.Background = brush;
                 }

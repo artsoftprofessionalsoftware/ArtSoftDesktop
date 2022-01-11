@@ -55,6 +55,12 @@ namespace ArtSoftDesktop
                 return false;
             }
 
+            if (tbTitle.Text == null || tbTitle.Text == "")
+            {
+                MessageBox.Show("Name can't be empty", "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return false;
+            }
+
             return true;
         }
 
