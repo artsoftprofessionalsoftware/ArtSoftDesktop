@@ -88,22 +88,7 @@ namespace ArtSoftDesktop
                     }
                 }
 
-                XmlElement pn = (XmlElement)prfXmlElem.ChildNodes[cbProfile.SelectedIndex];
-                int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
-                string name = pn.SelectSingleNode("descendant::ps:name", prfXmlNmSpce).InnerText;
-
-                ProfileItem pi = new ProfileItem();
-                pi.Id = id;
-                pi.Name = name;
-
-                XmlNode acxn = pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce);
-                if (acxn != null)
-                {
-                    bool autoClose = bool.Parse(acxn.InnerText);
-                    pi.AutoClose = autoClose;
-                }
-
-                currentProfile = pi;
+                currentProfile = (ProfileItem)cbProfile.SelectedItem;
             }
             catch (Exception ex)
             {
@@ -135,61 +120,67 @@ namespace ArtSoftDesktop
 
             foreach (XmlElement pn in prfXmlElem.ChildNodes)
             {
-                ProfileItem pi = new ProfileItem();
-
-                int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
-                pi.Id = id;
-
-                string name = pn.SelectSingleNode("descendant::ps:name", prfXmlNmSpce).InnerText;
-                pi.Name = name;
-
-                XmlNode lxn = pn.SelectSingleNode("descendant::ps:left", prfXmlNmSpce);
-                if (lxn != null)
-                {
-                    double left = double.Parse(lxn.InnerText);
-                    pi.Left = left;
-                }
-
-                XmlNode txn = pn.SelectSingleNode("descendant::ps:top", prfXmlNmSpce);
-                if (txn != null)
-                {
-                    double top = double.Parse(txn.InnerText);
-                    pi.Top = top;
-                }
-
-                XmlNode wxn = pn.SelectSingleNode("descendant::ps:width", prfXmlNmSpce);
-                if (wxn != null)
-                {
-                    double width = double.Parse(wxn.InnerText);
-                    pi.Width = width;
-                }
-
-                XmlNode hxn = pn.SelectSingleNode("descendant::ps:height", prfXmlNmSpce);
-                if (hxn != null)
-                {
-                    double height = double.Parse(hxn.InnerText);
-                    pi.Height = height;
-                }
-
-                pi.MenuVisible = true;
-                XmlNode ahxn = pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce);
-                if (ahxn != null)
-                {
-                    bool menuVisible = bool.Parse(pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce).InnerText);
-                    pi.MenuVisible = menuVisible;
-                }
-
-                XmlNode acxn = pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce);
-                if (acxn != null)
-                {
-                    bool autoClose = bool.Parse(pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce).InnerText);
-                    pi.AutoClose = autoClose;
-                }
-
+                ProfileItem pi = InitProfileItem(pn);
                 cbProfile.Items.Add(pi);
             }
 
             cbProfile.SelectedIndex = index;
+        }
+
+        private ProfileItem InitProfileItem(XmlElement pn)
+        {
+            ProfileItem pi = new ProfileItem();
+
+            int id = int.Parse(pn.SelectSingleNode("descendant::ps:id", prfXmlNmSpce).InnerText);
+            pi.Id = id;
+
+            string name = pn.SelectSingleNode("descendant::ps:name", prfXmlNmSpce).InnerText;
+            pi.Name = name;
+
+            XmlNode lxn = pn.SelectSingleNode("descendant::ps:left", prfXmlNmSpce);
+            if (lxn != null)
+            {
+                double left = double.Parse(lxn.InnerText);
+                pi.Left = left;
+            }
+
+            XmlNode txn = pn.SelectSingleNode("descendant::ps:top", prfXmlNmSpce);
+            if (txn != null)
+            {
+                double top = double.Parse(txn.InnerText);
+                pi.Top = top;
+            }
+
+            XmlNode wxn = pn.SelectSingleNode("descendant::ps:width", prfXmlNmSpce);
+            if (wxn != null)
+            {
+                double width = double.Parse(wxn.InnerText);
+                pi.Width = width;
+            }
+
+            XmlNode hxn = pn.SelectSingleNode("descendant::ps:height", prfXmlNmSpce);
+            if (hxn != null)
+            {
+                double height = double.Parse(hxn.InnerText);
+                pi.Height = height;
+            }
+
+            pi.MenuVisible = true;
+            XmlNode ahxn = pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce);
+            if (ahxn != null)
+            {
+                bool menuVisible = bool.Parse(pn.SelectSingleNode("descendant::ps:menuvisible", prfXmlNmSpce).InnerText);
+                pi.MenuVisible = menuVisible;
+            }
+
+            XmlNode acxn = pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce);
+            if (acxn != null)
+            {
+                bool autoClose = bool.Parse(pn.SelectSingleNode("descendant::ps:autoclose", prfXmlNmSpce).InnerText);
+                pi.AutoClose = autoClose;
+            }
+
+            return pi;
         }
 
         public class ProfileItem
