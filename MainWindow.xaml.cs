@@ -716,6 +716,13 @@ namespace ArtSoftDesktop
                         shortCutControl.File = file;
                         shortCutControl.Title = title;
 
+                        XmlNode axn = ctlNode.SelectSingleNode("descendant::ps:args", prfXmlNmSpce);
+                        if (axn != null)
+                        {
+                            string args = axn.InnerText;
+                            shortCutControl.Args = args;
+                        }
+
                         FileAttributes fileAttrs = File.GetAttributes(file);
 
                         if (fileAttrs.HasFlag(FileAttributes.Directory))
@@ -857,6 +864,13 @@ namespace ArtSoftDesktop
                         XmlNode fxn = dskXmlDoc.CreateNode(XmlNodeType.Element, "file", uri);
                         fxn.InnerText = shortCutControl.File;
                         cxn.AppendChild(fxn);
+
+                        if (shortCutControl.Args != null && shortCutControl.Args != "")
+                        {
+                            XmlNode axn = dskXmlDoc.CreateNode(XmlNodeType.Element, "args", uri);
+                            axn.InnerText = shortCutControl.Args;
+                            cxn.AppendChild(axn);
+                        }
 
                         XmlNode txn = dskXmlDoc.CreateNode(XmlNodeType.Element, "title", uri);
                         txn.InnerText = shortCutControl.Title;

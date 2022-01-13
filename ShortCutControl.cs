@@ -70,6 +70,8 @@ namespace ArtSoftDesktop
 
         public string File { set; get; }
 
+        public string Args { set; get; }
+
         public string Title
         {
             set
@@ -124,6 +126,10 @@ namespace ArtSoftDesktop
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = File;
                 psi.WorkingDirectory = Path.GetDirectoryName(File);
+                if(Args != null && Args != "")
+                {
+                    psi.Arguments = Args;
+                }
                 Process prc = Process.Start(psi);
             }
         }

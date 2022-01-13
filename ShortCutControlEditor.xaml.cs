@@ -30,6 +30,7 @@ namespace ArtSoftDesktop
             tbTop.Text = control.Top.ToString();
             tbLeft.Text = control.Left.ToString();
             tbFile.Text = control.File;
+            tbArgs.Text = control.Args;
             tbTitle.Text = control.Title;
             _control = control;
         }
@@ -41,6 +42,7 @@ namespace ArtSoftDesktop
                 _control.Top = double.Parse(tbTop.Text);
                 _control.Left = double.Parse(tbLeft.Text);
                 _control.File = tbFile.Text;
+                _control.Args = tbArgs.Text;
                 _control.Title = tbTitle.Text;
                 Result = true;
                 this.Close();
@@ -57,7 +59,7 @@ namespace ArtSoftDesktop
 
             if (tbTitle.Text == null || tbTitle.Text == "")
             {
-                MessageBox.Show("Name can't be empty", "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                MessageBox.Show("Title can't be empty", "ArtSoftDesktop", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return false;
             }
 
